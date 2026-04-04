@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CobraBot Desktop</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <img src="assets/icon.png" alt="CobraBot" class="logo">
+      <h1>CobraBot Desktop</h1>
+    </div>
+    
+    <!-- Connection Status -->
+    <div class="status-card" id="status-card">
+      <div class="status-indicator" id="status-indicator"></div>
+      <span id="status-text">Отключено</span>
+    </div>
+    
+    <!-- Token Input -->
+    <div class="input-group" id="token-group">
+      <label for="token-input">Токен подключения:</label>
+      <input type="text" id="token-input" placeholder="xxx-xxx-xxx">
+      <button id="connect-btn" class="btn-primary">Подключить</button>
+    </div>
+    
+    <!-- Connected Info -->
+    <div class="connected-info" id="connected-info" style="display: none;">
+      <p>✓ Подключено к серверу</p>
+      <p class="hint">Теперь вы можете управлять этим ПК через Telegram</p>
+      <button id="disconnect-btn" class="btn-secondary">Отключить</button>
+    </div>
+    
+    <!-- Error Message -->
+    <div class="error-message" id="error-message" style="display: none;">
+      <span id="error-text"></span>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+      <p>Версия 1.0.0</p>
+      <a href="#" id="help-link">Помощь</a>
+    </div>
+  </div>
+  
+  <!-- Confirmation Modal -->
+  <div class="modal-overlay" id="confirmation-modal" style="display: none;">
+    <div class="modal">
+      <div class="modal-header">
+        <span id="modal-title">⚠️ Подтверждение</span>
+      </div>
+      <div class="modal-body">
+        <p id="modal-message"></p>
+        <p id="modal-details" class="modal-details"></p>
+      </div>
+      <div class="modal-footer">
+        <button id="confirm-yes" class="btn-danger">Подтвердить</button>
+        <button id="confirm-no" class="btn-secondary">Отмена</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="renderer.js"></script>
+</body>
+</html>
