@@ -6,8 +6,7 @@ const screenshot = require('screenshot-desktop');
 const { mouse, keyboard, Key } = require('@nut-tree-fork/nut-js');
 const fs = require('fs');
 const os = require('os');
-// const puppeteer = require('puppeteer'); // Disabled for v1.0
-
+const puppeteer = require('puppeteer');
 const store = new Store();
 let mainWindow = null;
 let tray = null;
@@ -512,6 +511,11 @@ async function browserLaunch(payload) {
 }
 
 async function browserNavigate(payload) {
+async function browserLaunch(payload) {
+  return { success: false, error: 'Browser not available in v1.0' };
+}
+
+async function browserNavigate(payload) {
   return { success: false, error: 'Browser not available in v1.0' };
 }
 
@@ -539,83 +543,96 @@ async function browserEvaluate(payload) {
   return { success: false, error: 'Browser not available in v1.0' };
 }
 
-// IPC handlers
-ipcMain.handle('connect', async (event, token) => {
-  store.set('token', token);
-  connectToGateway(token);
-  return { success: true };
-});
-
-ipcMain.handle('disconnect', async () => {
-  if (ws) {
-    ws.close();
-    ws = null;
-  }
-  store.delete('token');
-  return { success: true };
-});
-
-ipcMain.handle('get-status', async () => {
-  return {
-    connected: ws && ws.readyState === WebSocket.OPEN,
-    hasToken: store.has('token')
-  };
-});
-
-// Handle confirmation response from UI
-ipcMain.handle('confirmation-response', async (event, data) => {
-  const { id, confirmed } = data;
-  const resolver = pendingConfirmations.get(id);
-  if (resolver) {
-    pendingConfirmations.delete(id);
-    resolver(confirmed);
-  }
-  return { success: true };
-});
-
-// Handle deeplink (cobrabot://connect?token=xxx)
-app.setAsDefaultProtocolClient('cobrabot');
-
-app.on('open-url', (event, url) => {
-  event.preventDefault();
-  
-  const parsedUrl = new URL(url);
-  if (parsedUrl.hostname === 'connect') {
-    const token = parsedUrl.searchParams.get('token');
-    if (token) {
-      store.set('token', token);
-      if (mainWindow) {
-        mainWindow.webContents.send('auto-connect', { token });
-        mainWindow.show();
-      }
-      connectToGateway(token);
-    }
-  }
-});
-
-// App lifecycle
-app.whenReady().then(() => {
-  createWindow();
-  createTray();
-  
-  // Auto-connect if token saved
-  const savedToken = store.get('token');
-  if (savedToken) {
-    mainWindow.webContents.on('did-finish-load', () => {
-      mainWindow.webContents.send('auto-connect', { token: savedToken });
-      connectToGateway(savedToken);
+// ============================================
+    
+    const screenshot = await page.screenshot({
+      encoding: 'base64',
+      fullPage: payload?.fullPage || false
     });
+    
+    return { success: true, image: screenshot };
+  } catch (err) {
+    return { success: false, error: err.message };
   }
-});
+}
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
+async function browserClick(payload) {
+  try {
+    if (!browserInstance) {
+      return { success: false, error: 'Browser not launched' };
+    }
+    
+    const { selector } = payload;
+    const pages = await browserInstance.pages();
+    const page = pages[pages.length - 1];
+    
+    await page.click(selector);
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.message };
   }
-});
+}
 
-app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
+async function browserType(payload) {
+  try {
+    if (!browserInstance) {
+      return { success: false, error: 'Browser not launched' };
+    }
+    
+    const { selector, text } = payload;
+    const pages = await browserInstance.pages();
+    const page = pages[pages.length - 1];
+    
+    await page.type(selector, text);
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.message };
   }
-});
+}
+
+async function browserWait(payload) {
+  try {
+    if (!browserInstance) {
+      return { success: false, error: 'Browser not launched' };
+    }
+    
+    const { selector, timeout } = payload;
+    const pages = await browserInstance.pages();
+    const page = pages[pages.length - 1];
+    
+    await page.waitForSelector(selector, { timeout: timeout || 30000 });
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+
+async function browserClose() {
+  try {
+    if (browserInstance) {
+      await browserInstance.close();
+      browserInstance = null;
+    }
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+
+async function browserEvaluate(payload) {
+  try {
+    if (!browserInstance) {
+      return { success: false, error: 'Browser not launched' };
+    }
+    
+    const { script } = payload;
+    const pages = await browserInstance.pages();
+    const page = pages[pages.length - 1];
+    
+    const result = await page.evaluate(script);
+    return { success: true, result };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+

@@ -25,7 +25,8 @@
     "axios": "^1.6.0",
     "electron-store": "^8.1.0",
     "screenshot-desktop": "^1.12.7",
-    "@nut-tree-fork/nut-js": "^4.2.6"
+    "@nut-tree-fork/nut-js": "^4.2.6",
+    "puppeteer": "^21.0.0"
   },
   "build": {
     "appId": "com.cobrabot.desktop",
