@@ -6,7 +6,7 @@ const screenshot = require('screenshot-desktop');
 const { mouse, keyboard, Key } = require('@nut-tree-fork/nut-js');
 const fs = require('fs');
 const os = require('os');
-const puppeteer = require('puppeteer');
+// const puppeteer = require('puppeteer'); // Disabled for v1.0
 
 const store = new Store();
 let mainWindow = null;
@@ -499,143 +499,44 @@ async function performScroll(payload) {
 }
 
 // ============================================
-// Puppeteer Browser Functions
+// Browser Functions (disabled in v1.0)
+// ============================================
+
+
+// ============================================
+// Browser Functions (disabled in v1.0)
 // ============================================
 
 async function browserLaunch(payload) {
-  try {
-    const options = payload || {};
-    
-    // Close existing browser if any
-    if (browserInstance) {
-      await browserInstance.close();
-    }
-    
-    browserInstance = await puppeteer.launch({
-      headless: options.headless !== false, // default true
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    
-    return { success: true, message: 'Browser launched' };
-  } catch (err) {
-    return { success: false, error: err.message };
-  }
+  return { success: false, error: 'Browser not available in v1.0' };
 }
 
 async function browserNavigate(payload) {
-  try {
-    if (!browserInstance) {
-      return { success: false, error: 'Browser not launched' };
-    }
-    
-    const { url } = payload;
-    const page = await browserInstance.newPage();
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
-    
-    return { success: true, title: await page.title(), url: page.url() };
-  } catch (err) {
-    return { success: false, error: err.message };
-  }
+  return { success: false, error: 'Browser not available in v1.0' };
 }
 
 async function browserScreenshot(payload) {
-  try {
-    if (!browserInstance) {
-      return { success: false, error: 'Browser not launched' };
-    }
-    
-    const pages = await browserInstance.pages();
-    const page = pages[pages.length - 1];
-    
-    const screenshot = await page.screenshot({
-      encoding: 'base64',
-      fullPage: payload?.fullPage || false
-    });
-    
-    return { success: true, image: screenshot };
-  } catch (err) {
-    return { success: false, error: err.message };
-  }
+  return { success: false, error: 'Browser not available in v1.0' };
 }
 
 async function browserClick(payload) {
-  try {
-    if (!browserInstance) {
-      return { success: false, error: 'Browser not launched' };
-    }
-    
-    const { selector } = payload;
-    const pages = await browserInstance.pages();
-    const page = pages[pages.length - 1];
-    
-    await page.click(selector);
-    return { success: true };
-  } catch (err) {
-    return { success: false, error: err.message };
-  }
+  return { success: false, error: 'Browser not available in v1.0' };
 }
 
 async function browserType(payload) {
-  try {
-    if (!browserInstance) {
-      return { success: false, error: 'Browser not launched' };
-    }
-    
-    const { selector, text } = payload;
-    const pages = await browserInstance.pages();
-    const page = pages[pages.length - 1];
-    
-    await page.type(selector, text);
-    return { success: true };
-  } catch (err) {
-    return { success: false, error: err.message };
-  }
+  return { success: false, error: 'Browser not available in v1.0' };
 }
 
 async function browserWait(payload) {
-  try {
-    if (!browserInstance) {
-      return { success: false, error: 'Browser not launched' };
-    }
-    
-    const { selector, timeout } = payload;
-    const pages = await browserInstance.pages();
-    const page = pages[pages.length - 1];
-    
-    await page.waitForSelector(selector, { timeout: timeout || 30000 });
-    return { success: true };
-  } catch (err) {
-    return { success: false, error: err.message };
-  }
+  return { success: false, error: 'Browser not available in v1.0' };
 }
 
 async function browserClose() {
-  try {
-    if (browserInstance) {
-      await browserInstance.close();
-      browserInstance = null;
-    }
-    return { success: true };
-  } catch (err) {
-    return { success: false, error: err.message };
-  }
+  return { success: false, error: 'Browser not available in v1.0' };
 }
 
 async function browserEvaluate(payload) {
-  try {
-    if (!browserInstance) {
-      return { success: false, error: 'Browser not launched' };
-    }
-    
-    const { script } = payload;
-    const pages = await browserInstance.pages();
-    const page = pages[pages.length - 1];
-    
-    const result = await page.evaluate(script);
-    return { success: true, result };
-  } catch (err) {
-    return { success: false, error: err.message };
-  }
+  return { success: false, error: 'Browser not available in v1.0' };
 }
 
 // IPC handlers
