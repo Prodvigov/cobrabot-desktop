@@ -36,16 +36,13 @@
     },
     "mac": {
       "category": "public.app-category.productivity",
-      "icon": "assets/icon.png",
-      "target": ["dmg", "zip"]
+      "target": "dmg"
     },
     "win": {
-      "icon": "assets/icon.ico",
-      "target": ["nsis", "portable"]
+      "target": "portable"
     },
     "linux": {
-      "icon": "assets/icon.png",
-      "target": ["AppImage"]
+      "target": "AppImage"
     },
     "protocols": [
       {
