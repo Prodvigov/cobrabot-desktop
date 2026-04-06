@@ -15,7 +15,7 @@ let ws = null;
 let browserInstance = null;
 
 // Gateway config
-const GATEWAY_URL = 'ws://155.212.228.24:18790';
+const GATEWAY_URL = 'wss://155.212.228.24:18793';
 
 // Heartbeat config
 const HEARTBEAT_INTERVAL = 30000;
@@ -113,7 +113,7 @@ function createTray() {
 function connectToGateway(token) {
   if (ws) ws.close();
   
-  ws = new WebSocket(`${GATEWAY_URL}?token=${token}`);
+  ws = new WebSocket(`${GATEWAY_URL}?token=${token}`, { rejectUnauthorized: false });
   
   ws.on('open', () => {
     console.log('Connected to Gateway');
