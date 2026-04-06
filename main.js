@@ -2,7 +2,7 @@ const { app, BrowserWindow, Tray, Menu, ipcMain, shell } = require('electron');
 const path = require('path');
 const WebSocket = require('ws');
 const Store = require('electron-store');
-const screenshot = require('screenshot-desktop');
+// screenshot-desktop removed - using PowerShell on Windows
 const { mouse, keyboard, Key } = require('@nut-tree-fork/nut-js');
 const fs = require('fs');
 const os = require('os');
@@ -244,7 +244,31 @@ async function takeScreenshot() {
     const tmpDir = os.tmpdir();
     const filename = `screenshot-${Date.now()}.png`;
     const filepath = path.join(tmpDir, filename);
-    await screenshot({ filename: filepath });
+    
+    if (process.platform === 'win32') {
+      // Use PowerShell for Windows screenshot
+      const { execSync } = require('child_process');
+      const psScript = `
+Add-Type -AssemblyName System.Windows.Forms;
+Add-Type -AssemblyName System.Drawing;
+$bitmap = New-Object System.Drawing.Bitmap([System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Width, [System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Height);
+$graphics = [System.Drawing.Graphics]::FromImage($bitmap);
+$graphics.CopyFromScreen([System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Location, [System.Drawing.Point]::Empty, $bitmap.Size);
+$bitmap.Save('${filepath.replace(/\\/g, '\\\\')}');
+$graphics.Dispose();
+$bitmap.Dispose();
+      `;
+      execSync(`powershell -NoProfile -Command "${psScript.replace(/\n/g, ' ')}"`, { timeout: 10000 });
+    } else {
+      // Linux/macOS - use scrot or screencapture
+      const { execSync } = require('child_process');
+      if (process.platform === 'darwin') {
+        execSync(`screencapture -x "${filepath}"`, { timeout: 10000 });
+      } else {
+        execSync(`scrot "${filepath}"`, { timeout: 10000 });
+      }
+    }
+    
     const imageBuffer = fs.readFileSync(filepath);
     const base64 = imageBuffer.toString('base64');
     fs.unlinkSync(filepath);
